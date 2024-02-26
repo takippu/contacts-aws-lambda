@@ -75,6 +75,10 @@ export const handler = async (event, context) => {
         case "GET /contacts/search":
           const nameToSearch = event.queryStringParameters.name;
           const sort = event.queryStringParameters.sort;
+          const latest = parseInt(event.queryStringParameters.latest);
+          const email = event.queryStringParameters.email;
+          const gender = event.queryStringParameters.gender;
+
 
           if (nameToSearch) {
             const searchResponse = await dynamo.send(
@@ -88,6 +92,36 @@ export const handler = async (event, context) => {
 
             if (!searchResponse.Items || searchResponse.Items.length === 0) {
               throw new Error(`There is no one with the name: ${nameToSearch}`);
+            }
+
+            body = searchResponse.Items;
+          }else if (email) {
+            const searchResponse = await dynamo.send(
+              new ScanCommand({
+                TableName: tableName,
+                FilterExpression: 'contains (#n, :email)',
+                ExpressionAttributeNames: { '#n': 'email' },
+                ExpressionAttributeValues: { ':email': email }
+              })
+            );
+
+            if (!searchResponse.Items || searchResponse.Items.length === 0) {
+              throw new Error(`There is no one with the email: ${email}`);
+            }
+
+            body = searchResponse.Items;
+          }else if (gender) {
+            const searchResponse = await dynamo.send(
+              new ScanCommand({
+                TableName: tableName,
+                FilterExpression: 'contains (#n, :gender)',
+                ExpressionAttributeNames: { '#n': 'gender' },
+                ExpressionAttributeValues: { ':gender': gender }
+              })
+            );
+
+            if (!searchResponse.Items || searchResponse.Items.length === 0) {
+              throw new Error(`There is no one with the gender: ${gender}`);
             }
 
             body = searchResponse.Items;
@@ -114,8 +148,29 @@ export const handler = async (event, context) => {
             });
         
             body = sortedItems;
+          }else if (latest) {
+
+            const scanResponse = await dynamo.send(
+              new ScanCommand({
+                TableName: tableName
+              })
+            );
+        
+            if (!scanResponse.Items || scanResponse.Items.length === 0) {
+              throw new Error("No items found");
+            }
+        
+            // Sorting based on the 'id' property to get the latest items
+            const sortedItems = scanResponse.Items.sort((a, b) => {
+              return parseInt(b.id) - parseInt(a.id); // Sort in descending order based on 'id'
+            });
+        
+            // Take only the specified number of latest items
+            const latestItems = sortedItems.slice(0, latest);
+        
+            body = latestItems;
           } else {
-            throw new Error("Any parameter is required for search. (name or sort)");
+            throw new Error("Any parameter with proper usage is required for search. (name/sort/latest)");
           }
           break;
       default:
