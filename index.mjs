@@ -53,6 +53,7 @@ export const handler = async (event, context) => {
         );
         body = body.Items;
         break;
+  
         //create new or update
       case "PUT /contacts":
         let requestJSON = JSON.parse(event.body);
@@ -71,26 +72,52 @@ export const handler = async (event, context) => {
         );
         body = `Put item ${requestJSON.id}`;
         break;
-      case "GET /contacts/search":
-        const nameToSearch = event.queryStringParameters.name;
-  
-        if (!nameToSearch) {
-          throw new Error("Name parameter is required for search");
-        }
-  
-        const searchResponse = await dynamo.send(
-          new ScanCommand({
-            TableName: tableName,
-            FilterExpression: 'contains (#n, :name)',
-            ExpressionAttributeNames: { '#n': 'name' },
-            ExpressionAttributeValues: { ':name': nameToSearch }
-          })
-        );
-        if (searchResponse.Items.length === 0) {
-          throw new Error(`No items found with name: ${nameToSearch}`);
-        }
-        body = searchResponse.Items;
-        break;
+        case "GET /contacts/search":
+          const nameToSearch = event.queryStringParameters.name;
+          const sort = event.queryStringParameters.sort;
+
+          if (nameToSearch) {
+            const searchResponse = await dynamo.send(
+              new ScanCommand({
+                TableName: tableName,
+                FilterExpression: 'contains (#n, :name)',
+                ExpressionAttributeNames: { '#n': 'name' },
+                ExpressionAttributeValues: { ':name': nameToSearch }
+              })
+            );
+
+            if (!searchResponse.Items || searchResponse.Items.length === 0) {
+              throw new Error(`There is no one with the name: ${nameToSearch}`);
+            }
+
+            body = searchResponse.Items;
+          } else if (sort) {
+            const scanResponse = await dynamo.send(
+              new ScanCommand({
+                TableName: tableName
+              })
+            );
+        
+            if (!scanResponse.Items || scanResponse.Items.length === 0) {
+              throw new Error("No items found");
+            }
+        
+            // Sorting based on the 'name' property
+            const sortedItems = scanResponse.Items.sort((a, b) => {
+              if (sort.toUpperCase() === 'DESC') {
+                return b.name.localeCompare(a.name); // Sort in descending order
+              } else if(sort.toUpperCase() === 'ASC'){
+                return a.name.localeCompare(b.name); // Sort in ascending order
+              } else{
+                throw new Error(`There is no such thing as ${sort}. Only ASC and DESC`);
+              }
+            });
+        
+            body = sortedItems;
+          } else {
+            throw new Error("Any parameter is required for search. (name or sort)");
+          }
+          break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
     }
