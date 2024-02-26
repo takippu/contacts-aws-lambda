@@ -22,6 +22,7 @@ export const handler = async (event, context) => {
 
   try {
     switch (event.routeKey) {
+      //delete
       case "DELETE /contacts/{id}":
         await dynamo.send(
           new DeleteCommand({
@@ -33,6 +34,7 @@ export const handler = async (event, context) => {
         );
         body = `Deleted item ${event.pathParameters.id}`;
         break;
+        //get specifics
       case "GET /contacts/{id}":
         body = await dynamo.send(
           new GetCommand({
@@ -44,12 +46,14 @@ export const handler = async (event, context) => {
         );
         body = body.Item;
         break;
+        //get all
       case "GET /contacts":
         body = await dynamo.send(
           new ScanCommand({ TableName: tableName })
         );
         body = body.Items;
         break;
+        //create new or update
       case "PUT /contacts":
         let requestJSON = JSON.parse(event.body);
         await dynamo.send(
@@ -57,12 +61,35 @@ export const handler = async (event, context) => {
             TableName: tableName,
             Item: {
               id: requestJSON.id,
-              price: requestJSON.price,
               name: requestJSON.name,
+              gender: requestJSON.gender,
+              phoneNum: requestJSON.phoneNum,
+              email: requestJSON.email,
+
             },
           })
         );
         body = `Put item ${requestJSON.id}`;
+        break;
+      case "GET /contacts/search":
+        const nameToSearch = event.queryStringParameters.name;
+  
+        if (!nameToSearch) {
+          throw new Error("Name parameter is required for search");
+        }
+  
+        const searchResponse = await dynamo.send(
+          new ScanCommand({
+            TableName: tableName,
+            FilterExpression: 'contains (#n, :name)',
+            ExpressionAttributeNames: { '#n': 'name' },
+            ExpressionAttributeValues: { ':name': nameToSearch }
+          })
+        );
+        if (searchResponse.Items.length === 0) {
+          throw new Error(`No items found with name: ${nameToSearch}`);
+        }
+        body = searchResponse.Items;
         break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
