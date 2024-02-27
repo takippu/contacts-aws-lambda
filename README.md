@@ -131,14 +131,14 @@
   Response Example: <br>
   <img src="https://github.com/takippu/contacts-aws-lambda/assets/70655268/05dad6f5-07f5-402a-8a1f-2f9e2d86098b">
 </div>
-<h6>8. Get all contacts sorted alphabetically </h6>
+<h6>9. Get latest contact by length </h6>
 <p>
   HTTP Method: GET <br>
   Endpoint URL: /contacts/search <br>
   Parameter: latest <br>
   Value: any length such as 1,2,3,... <br>
   Example: https://nwfhtz0hhi.execute-api.us-east-1.amazonaws.com/contacts/search?latest=3 <br>
-  Description: Get all contacts information sorted alphabetically either ascending or descending, sorted by ID<br>
+  Description: Get latest contact by length that was specified<br>
   
 </p>
 <div>
