@@ -1,6 +1,8 @@
 # contacts-aws-lambda
 
 <h2>Assessment for Vimigo</h2>
+<h4>Brief Description : </h4>
+<p>Contacts-Aws-Lambda is a serverless API Service for Contact Information developed using AWS Lambda, DynamoDB and ApiGateWay. Contact Information has details such as name, gender, phone number and email address. This was built for an assessment test for Vimigo.</p>
 <hr/>
 <h3>API Documentation</h3>
 <p>The API features these operations for Contacts Information :</p>
