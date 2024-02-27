@@ -22,8 +22,8 @@ https://www.loom.com/share/a1918805711d4f629b20bea925012548
 </ol>
 <span><i>This documentation will provide the POSTMAN link and Examples</i></span>
 <br> <br>
-<p>The base URL for the API is `https://nwfhtz0hhi.execute-api.us-east-1.amazonaws.com/`.</p>
-<p>POSTMAN links is `https://elements.getpostman.com/redirect?entityId=31793035-ba2820a9-76b7-4915-a1a8-2b09e3273f7d&entityType=collection`</p>
+<p>The base URL for the API is https://nwfhtz0hhi.execute-api.us-east-1.amazonaws.com/</p>
+<p>POSTMAN links is https://elements.getpostman.com/redirect?entityId=31793035-ba2820a9-76b7-4915-a1a8-2b09e3273f7d&entityType=collection</p>
 
 <h4>##Endpoints</h4>
 <h6>1. Get All </h6>
