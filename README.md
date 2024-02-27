@@ -48,7 +48,7 @@
 <p>
   HTTP Method: PUT <br>
   Endpoint URL: /contacts <br>
-  Example: https://nwfhtz0hhi.execute-api.us-east-1.amazonaws.com/contacts/1 <br>
+  Example: https://nwfhtz0hhi.execute-api.us-east-1.amazonaws.com/contacts <br>
   Description: Create a new contact information <br>
   
 </p>
